@@ -8,6 +8,17 @@ using System.Threading.Tasks;
 using static System.Console;
 namespace Test
 {
+    public class MyException : ApplicationException
+    {
+
+        public DateTime TimeException { get; private set; }
+        public MyException() : base("Wrong percentage, try again")
+        {
+
+            TimeException = DateTime.Now;
+        }
+
+    }
     class Money
     {
         private double rubles;
@@ -15,7 +26,7 @@ namespace Test
         public double Rubles
         {
             get { return rubles; }
-            set { if (value >= 0 && value <= 1000) rubles = value; else WriteLine("Error"); }
+            set { if (value >= 0 && value <= 1000) rubles = value; else throw new Exception("Error: enter amount under 1000"); }
         }
 
         private double kopecks;
@@ -23,7 +34,7 @@ namespace Test
         public double Kopecks
         {
             get { return kopecks; }
-            set { if (value >= 0 || value <= 99) kopecks = value; else WriteLine("Error"); }
+            set { if (value >= 0 || value <= 99) kopecks = value; else throw new Exception("Error: enter amount under 1000"); }
         }
 
         public Money()
@@ -31,18 +42,14 @@ namespace Test
             rubles = 0;
             kopecks = 0;
         }
-        //public Money(double rubles,  double kopecks)
-        //{
-        //    this.rubles = rubles;
-        //    this.kopecks = kopecks;
-        //}
+       
 
         static public Money Setter(ref Money m)
         {
             WriteLine("Enter rubles");
-            m.rubles = Convert.ToDouble(ReadLine());
+            m.Rubles = Convert.ToDouble(ReadLine());
             WriteLine("Enter kopecks");
-            m.kopecks = Convert.ToDouble(ReadLine());
+            m.Kopecks = Convert.ToDouble(ReadLine());
             Clear();
             return m;
 
@@ -75,12 +82,25 @@ namespace Test
             Setter(ref m);
             WriteLine("\nEnter percent you would like to count");
             int p;
-            p = Convert.ToInt32(ReadLine());
-            if (p > 0 && p < 100)
+            try
             {
-                r = ((m.rubles + m.kopecks / 100) * p) / 100;
+                p = Convert.ToInt32(ReadLine());
+                if (p > 0 && p < 100)
+                {
+                    r = ((m.rubles + m.kopecks / 100) * p) / 100;
+                    WriteLine($"The result is {r} rubles");
+                }
+                else
+                {
+                    throw new MyException();
+                }
             }
-            WriteLine($"The result is {r} rubles");
+            catch (MyException me)
+            {
+                WriteLine(me.Message);
+                WriteLine(me.TimeException);
+            }
+
             return r;
         }
 
